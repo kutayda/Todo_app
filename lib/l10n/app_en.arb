@@ -1,0 +1,17 @@
+{
+    "appTitle": "Todo Calendar",
+    "newTask": "New Task",
+    "editTask": "Edit Task",
+    "title": "Title",
+    "description": "Description",
+    "add": "Add",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "highPriority": "High Priority",
+    "mediumPriority": "Medium Priority",
+    "lowPriority": "Low Priority",
+    "pastTimeError": "You cannot select a past time!",
+    "overdueWarning": "Warning! You have {count} overdue tasks!",
+    "noTasks": "No plans for today Hz"
+}

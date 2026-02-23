@@ -1,0 +1,17 @@
+{
+    "appTitle": "Todo Takvimi",
+    "newTask": "Yeni Görev",
+    "editTask": "Görevi Düzenle",
+    "title": "Başlık",
+    "description": "Açıklama",
+    "add": "Ekle",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "highPriority": "Yüksek Öncelik",
+    "mediumPriority": "Orta Öncelik",
+    "lowPriority": "Düşük Öncelik",
+    "pastTimeError": "Geçmiş bir zamana görev ekleyemezsin!",
+    "overdueWarning": "Dikkat! Süresi dolmuş {count} görevin var!",
+    "noTasks": "Bugün için plan yok 💤"
+}
