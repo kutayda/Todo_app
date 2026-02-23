@@ -188,23 +188,36 @@ class HomeScreen extends StatelessWidget {
                           color: todo.isCompleted ? Colors.grey : null,
                         ),
                       ),
+                      // ALT BAŞLIK: Açıklama (Sadece varsa) + Saat + Kategori + Öncelik
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            todo.description,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 6),
+                          // SİHİR BURADA: Eğer açıklama boş değilse bu kısmı ekrana çiz
+                          if (todo.description.isNotEmpty) ...[
+                            Text(
+                              todo.description,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 6), // Sadece açıklama varsa bu boşluğu bırak
+                          ],
+                          
+                          // SAAT VE DİĞER DETAYLAR (Her zaman en altta görünür)
                           Row(
                             children: [
-                              // Kategori İkonu ve İsmi
+                              const Icon(Icons.access_time, size: 14, color: Colors.blueGrey),
+                              const SizedBox(width: 4),
+                              Text(
+                                "${todo.deadline.hour.toString().padLeft(2, '0')}:${todo.deadline.minute.toString().padLeft(2, '0')}",
+                                style: const TextStyle(fontSize: 12, color: Colors.blueGrey, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(width: 12),
+
                               Icon(todo.category.icon, size: 14, color: todo.category.color),
                               const SizedBox(width: 4),
                               Text(todo.category.name, style: TextStyle(fontSize: 12, color: todo.category.color)),
                               const SizedBox(width: 12),
-                              // Öncelik Durumu
+                              
                               Text(
                                 todo.priority == 1 ? "🔴 Yüksek" : todo.priority == 2 ? "🟠 Orta" : "🟢 Düşük",
                                 style: const TextStyle(fontSize: 12),
