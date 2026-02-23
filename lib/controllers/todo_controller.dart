@@ -9,6 +9,7 @@ class TodoController extends GetxController {
   
  
 // ".obs" ekledik. Artık bu liste değiştiğinde ekran anında haberdar olacak.
+  var searchQuery = ''.obs;
   var todos = <Todo>[].obs; 
   var selectedDate = DateTime.now().obs;
 
@@ -97,6 +98,20 @@ class TodoController extends GetxController {
     return todos.where((todo) => isSameDay(todo.deadline, day)).toList();
   }
 
+  // Arama metnini güncelleme 
+  void uptadeSearchQuery(String query){
+    searchQuery.value = query;
+  }
+  List<Todo> get filteredDailyTodos{
+    var daily = getEventsForDay(selectedDate.value);
+
+    if(searchQuery.value.isEmpty) return daily;
+
+    return daily.where((todo) => 
+      todo.title.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
+        todo.description.toLowerCase().contains(searchQuery.value.toLowerCase())
+    ).toList();
+  }
   // --- BELLEK TEMİZLİĞİ (Eski dispose yerine) ---
   @override
   void onClose() {

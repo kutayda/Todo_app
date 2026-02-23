@@ -17,6 +17,7 @@ class HomeScreen extends StatelessWidget {
 
   // 2. DEPENDENCY INJECTION: Controller'ı UI'a bağlıyoruz
   final TodoController todoController = Get.put(TodoController());
+  final TextEditingController searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -107,13 +108,44 @@ class HomeScreen extends StatelessWidget {
               )),
 
           const Divider(),
+          Padding(
+            padding : const EdgeInsetsGeometry.symmetric(horizontal: 16, vertical: 8),
+            child: TextField(
+              controller: searchController, // Controller'ı bağladık
+              onChanged: (value) => todoController.uptadeSearchQuery(value),
+              decoration: InputDecoration(
+                hintText: "Görevlerde ara...",
+                prefixIcon: const Icon(Icons.search, color: Colors.blueAccent),
+                // SİHİR BURADA: Arama kutusu doluysa X butonunu göster, boşsa gizle
+                suffixIcon: Obx(() => todoController.searchQuery.value.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, color: Colors.grey),
+                        onPressed: () {
+                          searchController.clear(); // Kutuyu temizle
+                          todoController.uptadeSearchQuery(''); // Listeyi eski haline getir
+                          FocusScope.of(context).unfocus(); // Klavyeyi kapat
+                        },
+                      )
+                    : const SizedBox.shrink(), // Boşluk (Görünmez widget)
+                ),
+                filled: true,
+                fillColor: Theme.of(context).brightness == Brightness.dark 
+                    ? Colors.grey[800] 
+                    : Colors.grey[200],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+              ),
+            ),
+          ),
 
           // 2. GÖREV LİSTESİ (Obx ile sarıldı)
           Expanded(
             child: Obx(() {
               final dailyTodos =
-                  todoController.getEventsForDay(todoController.selectedDate.value);
-
+                  todoController.filteredDailyTodos;
               // Liste boşsa
               if (dailyTodos.isEmpty) {
                 return Center(
