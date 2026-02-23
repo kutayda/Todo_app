@@ -103,12 +103,13 @@ class TodoController extends GetxController {
     searchQuery.value = query;
   }
   List<Todo> get filteredDailyTodos{
-    var daily = getEventsForDay(selectedDate.value);
-
-    if(searchQuery.value.isEmpty) return daily;
-
-    return daily.where((todo) => 
-      todo.title.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
+    if (searchQuery.value.isEmpty) {
+      return getEventsForDay(selectedDate.value);
+    }
+    
+    // 2. Durum: Eğer arama kutusu DOLUYSA, takvimi yoksay ve TÜM GÖREVLER (todos) içinde ara
+    return todos.where((todo) =>
+        todo.title.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
         todo.description.toLowerCase().contains(searchQuery.value.toLowerCase())
     ).toList();
   }
