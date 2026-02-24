@@ -11,7 +11,7 @@ class AuthScreen extends StatelessWidget {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          // SİHİR BURADA: GetBuilder ile Controller'ı sayfaya bağlıyoruz
+          // GetBuilder ile Controller'ı sayfaya bağlıyoruz!!!
           child: GetBuilder<AuthController>(
             init: AuthController(), // İlk açılışta Controller'ı başlatır
             builder: (controller) {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/todo_model.dart';
@@ -7,7 +8,7 @@ import '../services/database_service.dart';
 // 1. Kural: ChangeNotifier yerine GetxController
 class TodoController extends GetxController {
   
- 
+  bool _hasCheckedOverdue = false; 
   var searchQuery = ''.obs;
   var todos = <Todo>[].obs; 
   var selectedDate = DateTime.now().obs;
@@ -72,6 +73,11 @@ class TodoController extends GetxController {
       Get.snackbar("Bağlantı Hatası", "Sunucuya ulaşılamadı: $e");
     }finally{
       isLoading.value = false;
+
+      if(!_hasCheckedOverdue){
+        _checkOverdueTasksOnStartup();
+        _hasCheckedOverdue = true;
+      }
     }
   }
 
@@ -127,5 +133,37 @@ class TodoController extends GetxController {
     _todosSubscription?.cancel();
     _authSubscription?.cancel();
     super.onClose();
+  }
+  @override
+  void onReady() {
+    super.onReady();
+    // Ekran çizimi biter bitmez gecikmiş görevleri kontrol et
+    _checkOverdueTasksOnStartup();
+  }
+
+  // Gecikmiş Görevleri Tespit Edip Uyarı Veren Fonksiyon
+  void _checkOverdueTasksOnStartup() {
+    final now = DateTime.now();
+    
+    // Geçmişte kalan VE henüz tamamlanmamış görevleri filtrele
+    final overdueTasks = todos.where((todo) => 
+      todo.deadline.isBefore(now) && !todo.isCompleted
+    ).toList();
+
+    // Eğer gecikmiş görev varsa ekranda bir Alert (Uyarı Penceresi) göster
+    if (overdueTasks.isNotEmpty) {
+      Get.defaultDialog(
+        title: "⏰ Gecikmiş Görevler!",
+        titleStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+        middleText: "Şu an tamamlamayı bekleyen ${overdueTasks.length} adet gecikmiş göreviniz bulunuyor. Lütfen listeni kontrol et.",
+        textConfirm: "Tamam, Bakacağım",
+        confirmTextColor: Colors.white,
+        buttonColor: Colors.redAccent,
+        radius: 12,
+        onConfirm: () {
+          Get.back(); // Butona basılınca pencereyi kapat
+        },
+      );
+    }
   }
 }

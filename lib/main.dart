@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'firebase_options.dart';
 import 'models/todo_model.dart';
-// import 'providers/todo_provider.dart'; // BUNA ARTIK İHTİYACIMIZ YOK!
 import 'providers/theme_provider.dart';
 import 'providers/local_provider.dart';
 import 'screens/home_screen.dart';
