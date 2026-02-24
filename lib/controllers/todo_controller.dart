@@ -12,6 +12,7 @@ class TodoController extends GetxController {
   var searchQuery = ''.obs;
   var todos = <Todo>[].obs; 
   var selectedDate = DateTime.now().obs;
+  var isLoading = false.obs;
 
   StreamSubscription? _todosSubscription;
   StreamSubscription? _authSubscription;
@@ -20,6 +21,7 @@ class TodoController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    fetchTodosFromApi();
     _subscribeToAuthChanges(); 
   }
 
@@ -63,6 +65,17 @@ class TodoController extends GetxController {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
     await DatabaseService(uid: user.uid).deleteTodo(id);
+  }
+
+  Future<void> fetchTodosFromApi() async{
+    try {
+      isLoading.value = true;
+      await Future.delayed(const Duration(seconds: 2));
+    }catch(e){
+      Get.snackbar("Bağlantı Hatası", "Sunucuya ulaşılamadı: $e");
+    }finally{
+      isLoading.value = false;
+    }
   }
 
   Future<void> toggleTodoStatus(Todo todo) async {

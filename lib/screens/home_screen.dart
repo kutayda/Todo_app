@@ -147,6 +147,18 @@ class HomeScreen extends StatelessWidget {
               final dailyTodos =
                   todoController.filteredDailyTodos;
               // Liste boşsa
+              if (todoController.isLoading.value) {
+                return const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(color: Colors.blueAccent),  
+                      SizedBox(height: 16),
+                      Text("Sunucudan veriler çekiliyor...", style: TextStyle(color: Colors.grey)),
+                    ],
+                  )
+                );
+              }
               if (dailyTodos.isEmpty) {
                 return Center(
                   child: Column(
@@ -166,58 +178,90 @@ class HomeScreen extends StatelessWidget {
               }
 
               // Listeyi Göster
+              // Listeyi Göster
               return ListView.builder(
                 itemCount: dailyTodos.length,
                 itemBuilder: (context, index) {
                   final todo = dailyTodos[index];
+
+                  // İŞ MANTIĞI: Görev geçmişte mi kaldı ve hala tamamlanmadı mı?
+                  final bool isOverdue = todo.deadline.isBefore(DateTime.now()) && !todo.isCompleted;
+
                   return Card(
                     margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: ListTile(
-                      // Checkbox
+                      // 1. ÇÖZÜM: Checkbox'ı Gecikme Durumuna Göre Kilitle
                       leading: Checkbox(
                         value: todo.isCompleted,
-                        onChanged: (_) {
-                          todoController.toggleTodoStatus(todo);
-                        },
+                        // Eğer geciktiyse null (pasif) yap, değilse işaretleme fonksiyonunu çalıştır
+                        onChanged: isOverdue ? null : (_) => todoController.toggleTodoStatus(todo),
                       ),
+                      
                       // Başlık
                       title: Text(
                         todo.title,
                         style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                           decoration: todo.isCompleted ? TextDecoration.lineThrough : null,
                           color: todo.isCompleted ? Colors.grey : null,
                         ),
                       ),
-                      // ALT BAŞLIK: Açıklama (Sadece varsa) + Saat + Kategori + Öncelik
+                      
+                      // Alt Başlık
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // SİHİR BURADA: Eğer açıklama boş değilse bu kısmı ekrana çiz
                           if (todo.description.isNotEmpty) ...[
                             Text(
                               todo.description,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 6), // Sadece açıklama varsa bu boşluğu bırak
+                            const SizedBox(height: 6),
                           ],
                           
-                          // SAAT VE DİĞER DETAYLAR (Her zaman en altta görünür)
-                          Row(
+                          // 2. ÇÖZÜM: Row Yerine WRAP Kullanıyoruz (Ekrana sığmazsa alt satıra atar)
+                          Wrap(
+                            spacing: 12.0, // Elemanlar arası yatay boşluk (SizedBox kullanmamıza gerek kalmadı)
+                            runSpacing: 4.0, // Alt satıra geçerse bırakılacak dikey boşluk
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
-                              const Icon(Icons.access_time, size: 14, color: Colors.blueGrey),
-                              const SizedBox(width: 4),
-                              Text(
-                                "${todo.deadline.hour.toString().padLeft(2, '0')}:${todo.deadline.minute.toString().padLeft(2, '0')}",
-                                style: const TextStyle(fontSize: 12, color: Colors.blueGrey, fontWeight: FontWeight.bold),
+                              // SAAT BÖLÜMÜ (Birlikte kalsınlar diye küçük bir Row içinde)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.access_time, size: 14, color: isOverdue ? Colors.red : Colors.blueGrey),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    "${todo.deadline.hour.toString().padLeft(2, '0')}:${todo.deadline.minute.toString().padLeft(2, '0')}",
+                                    style: TextStyle(
+                                      fontSize: 12, 
+                                      color: isOverdue ? Colors.red : Colors.blueGrey, 
+                                      fontWeight: FontWeight.bold
+                                    ),
+                                  ),
+                                  if (isOverdue) ...[
+                                    const SizedBox(width: 4),
+                                    const Text(
+                                      "(Gecikti)", 
+                                      style: TextStyle(fontSize: 10, color: Colors.red, fontWeight: FontWeight.bold)
+                                    ),
+                                  ],
+                                ],
                               ),
-                              const SizedBox(width: 12),
 
-                              Icon(todo.category.icon, size: 14, color: todo.category.color),
-                              const SizedBox(width: 4),
-                              Text(todo.category.name, style: TextStyle(fontSize: 12, color: todo.category.color)),
-                              const SizedBox(width: 12),
+                              // KATEGORİ BÖLÜMÜ
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(todo.category.icon, size: 14, color: todo.category.color),
+                                  const SizedBox(width: 4),
+                                  Text(todo.category.name, style: TextStyle(fontSize: 12, color: todo.category.color)),
+                                ],
+                              ),
                               
+                              // ÖNCELİK BÖLÜMÜ
                               Text(
                                 todo.priority == 1 ? "🔴 Yüksek" : todo.priority == 2 ? "🟠 Orta" : "🟢 Düşük",
                                 style: const TextStyle(fontSize: 12),
@@ -226,12 +270,11 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      // SİLME BUTONU (Onay Pencereli)
+                      
+                      // Silme Butonu
                       trailing: IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () {
-                          // GetX'in süper kolay Dialog penceresi:
-
                           final isDark = Theme.of(context).brightness == Brightness.dark;
                           Get.defaultDialog(
                             title: "Görevi Sil",
@@ -244,12 +287,13 @@ class HomeScreen extends StatelessWidget {
                             onConfirm: () {
                               todoController.deleteTodo(todo.id);
                               NotificationHelper().cancelNotification(todo.id.hashCode);
-                              Get.back(); // Dialog'u kapat
+                              Get.back();
                             },
                           );
                         },
                       ),
-                      // Düzenleme Dialog'unu Çağırma
+                      
+                      // Düzenleme
                       onTap: () {
                         DialogHelpers.showEditDialog(context, todo);
                       },
