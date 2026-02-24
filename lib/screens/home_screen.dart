@@ -9,13 +9,11 @@ import 'package:todo_app/utils/notification_helper.dart';
 import '../providers/theme_provider.dart';
 import '../widgets/todo_calendar.dart';
 import '../utils/dialog_helpers.dart';
-import '../controllers/todo_controller.dart'; // Yeni Controller'ımız eklendi
+import '../controllers/todo_controller.dart'; 
 
-// 1. StatefulWidget yerine StatelessWidget kullanıyoruz.
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
 
-  // 2. DEPENDENCY INJECTION: Controller'ı UI'a bağlıyoruz
   final TodoController todoController = Get.put(TodoController());
   final TextEditingController searchController = TextEditingController();
 
@@ -28,7 +26,6 @@ class HomeScreen extends StatelessWidget {
         title: Text(loc.appTitle),
         elevation: 0,
         actions: [
-          // TEMA BUTONU (Provider ile kalmasında sorun yok)
           Consumer<ThemeProvider>(
             builder: (context, themeProvider, child) {
               return IconButton(
@@ -42,7 +39,6 @@ class HomeScreen extends StatelessWidget {
             },
           ),
           
-          // DİL BUTONU (Provider ile kalmasında sorun yok)
           PopupMenuButton<String>(
             onSelected: (value) {
               final localeProvider =
@@ -62,7 +58,6 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
 
-          // ÇIKIŞ YAP BUTONU
           IconButton(
             icon: const Icon(Icons.exit_to_app, color: Colors.redAccent),
             tooltip: 'Çıkış Yap',
@@ -97,7 +92,6 @@ class HomeScreen extends StatelessWidget {
       
       body: Column(
         children: [
-          // 1. TAKVİM (Obx ile sarıldı, çünkü selectedDate ve todos değişecek)
           Obx(() => TodoCalendar(
                 focusedDay: todoController.selectedDate.value,
                 selectedDay: todoController.selectedDate.value,
@@ -116,17 +110,16 @@ class HomeScreen extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: "Görevlerde ara...",
                 prefixIcon: const Icon(Icons.search, color: Colors.blueAccent),
-                // SİHİR BURADA: Arama kutusu doluysa X butonunu göster, boşsa gizle
                 suffixIcon: Obx(() => todoController.searchQuery.value.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear, color: Colors.grey),
                         onPressed: () {
-                          searchController.clear(); // Kutuyu temizle
-                          todoController.uptadeSearchQuery(''); // Listeyi eski haline getir
-                          FocusScope.of(context).unfocus(); // Klavyeyi kapat
+                          searchController.clear(); 
+                          todoController.uptadeSearchQuery(''); 
+                          FocusScope.of(context).unfocus(); 
                         },
                       )
-                    : const SizedBox.shrink(), // Boşluk (Görünmez widget)
+                    : const SizedBox.shrink(), 
                 ),
                 filled: true,
                 fillColor: Theme.of(context).brightness == Brightness.dark 
@@ -141,12 +134,11 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
-          // 2. GÖREV LİSTESİ (Obx ile sarıldı)
+          // 2. GÖREV LİSTESİ (Obx)
           Expanded(
             child: Obx(() {
               final dailyTodos =
                   todoController.filteredDailyTodos;
-              // Liste boşsa
               if (todoController.isLoading.value) {
                 return const Center(
                   child: Column(
@@ -177,22 +169,18 @@ class HomeScreen extends StatelessWidget {
                 );
               }
 
-              // Listeyi Göster
               return ListView.builder(
                 itemCount: dailyTodos.length,
                 itemBuilder: (context, index) {
                   final todo = dailyTodos[index];
 
-                  // İŞ MANTIĞI: Görev geçmişte mi kaldı ve hala tamamlanmadı mı?
                   final bool isOverdue = todo.deadline.isBefore(DateTime.now()) && !todo.isCompleted;
 
                   return Card(
                     margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: ListTile(
-                      // 1. ÇÖZÜM: Checkbox'ı Gecikme Durumuna Göre Kilitle
                       leading: Checkbox(
                         value: todo.isCompleted,
-                        // Eğer geciktiyse null (pasif) yap, değilse işaretleme fonksiyonunu çalıştır
                         onChanged: isOverdue ? null : (_) => todoController.toggleTodoStatus(todo),
                       ),
                       
@@ -219,7 +207,6 @@ class HomeScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 6),
                           ],
-                          
                           Wrap(
                             spacing: 12.0, 
                             runSpacing: 4.0, 
@@ -248,7 +235,6 @@ class HomeScreen extends StatelessWidget {
                                 ],
                               ),
 
-                              // KATEGORİ BÖLÜMÜ
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -258,7 +244,6 @@ class HomeScreen extends StatelessWidget {
                                 ],
                               ),
                               
-                              // ÖNCELİK BÖLÜMÜ
                               Text(
                                 todo.priority == 1 ? "🟠 Yüksek" : todo.priority == 2 ? "🔵 Orta" : "🟢 Düşük",
                                 style: const TextStyle(fontSize: 12),
@@ -268,7 +253,6 @@ class HomeScreen extends StatelessWidget {
                         ],
                       ),
                       
-                      // Silme Butonu
                       trailing: IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () {

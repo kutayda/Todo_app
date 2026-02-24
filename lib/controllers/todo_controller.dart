@@ -8,7 +8,6 @@ import '../services/database_service.dart';
 class TodoController extends GetxController {
   
  
-// ".obs" ekledik. Artık bu liste değiştiğinde ekran anında haberdar olacak.
   var searchQuery = ''.obs;
   var todos = <Todo>[].obs; 
   var selectedDate = DateTime.now().obs;
@@ -17,7 +16,6 @@ class TodoController extends GetxController {
   StreamSubscription? _todosSubscription;
   StreamSubscription? _authSubscription;
 
-  // --- BAŞLANGIÇ (Eski Constructor yerine) ---
   @override
   void onInit() {
     super.onInit();
@@ -47,7 +45,6 @@ class TodoController extends GetxController {
     _todosSubscription?.cancel();
   }
 
-  // --- EYLEMLER (ACTIONS) ---
   
   Future<void> addTodo(Todo todo) async {
     final user = FirebaseAuth.instance.currentUser;
@@ -94,10 +91,9 @@ class TodoController extends GetxController {
     await DatabaseService(uid: user.uid).updateTodo(updatedTodo);
   }
 
-  // --- TAKVİM İŞLEMLERİ ---
 
   void setDate(DateTime date) {
-    // Sadece değeri değiştiriyoruz, takvim anında güncellenecek!
+    // Sadece değeri değiştiriyor
     selectedDate.value = date; 
   }
 
@@ -126,7 +122,6 @@ class TodoController extends GetxController {
         todo.description.toLowerCase().contains(searchQuery.value.toLowerCase())
     ).toList();
   }
-  // --- BELLEK TEMİZLİĞİ (Eski dispose yerine) ---
   @override
   void onClose() {
     _todosSubscription?.cancel();
