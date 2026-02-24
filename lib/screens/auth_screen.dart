@@ -1,37 +1,9 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import 'package:get/get.dart';
+import 'package:todo_app/controllers/aut_controller.dart';
 
-class AuthScreen extends StatefulWidget {
+class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
-
-  @override
-  State<AuthScreen> createState() => _AuthScreenState();
-}
-
-class _AuthScreenState extends State<AuthScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _isLogin = true; 
-  bool _isLoading = false;
-
-  void _submit() async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) return;
-
-    setState(() => _isLoading = true);
-    try {
-      if (_isLogin) {
-        await AuthService().signIn(_emailController.text, _passwordController.text);
-      } else {
-        await AuthService().signUp(_emailController.text, _passwordController.text);
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Hata: ${e.toString()}"), backgroundColor: Colors.red),
-      );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,35 +11,48 @@ class _AuthScreenState extends State<AuthScreen> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(_isLogin ? "Hoş Geldin" : "Hesap Oluştur", 
-                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 30),
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: "E-posta", border: OutlineInputBorder()),
-              ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: "Şifre", border: OutlineInputBorder()),
-              ),
-              const SizedBox(height: 25),
-              _isLoading 
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: _submit,
-                    style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-                    child: Text(_isLogin ? "Giriş Yap" : "Kayıt Ol"),
+          // SİHİR BURADA: GetBuilder ile Controller'ı sayfaya bağlıyoruz
+          child: GetBuilder<AuthController>(
+            init: AuthController(), // İlk açılışta Controller'ı başlatır
+            builder: (controller) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    controller.isLogin ? "Hoş Geldin" : "Hesap Oluştur", 
+                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)
                   ),
-              TextButton(
-                onPressed: () => setState(() => _isLogin = !_isLogin),
-                child: Text(_isLogin ? "Hesabın yok mu? Kayıt Ol" : "Zaten hesabın var mı? Giriş Yap"),
-              ),
-            ],
+                  const SizedBox(height: 30),
+                  
+                  TextField(
+                    controller: controller.emailController,
+                    decoration: const InputDecoration(labelText: "E-posta", border: OutlineInputBorder()),
+                  ),
+                  const SizedBox(height: 15),
+                  
+                  TextField(
+                    controller: controller.passwordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(labelText: "Şifre", border: OutlineInputBorder()),
+                  ),
+                  const SizedBox(height: 25),
+                  
+                  // Yükleniyor durumuna göre buton veya animasyon gösterimi
+                  controller.isLoading 
+                    ? const CircularProgressIndicator()
+                    : ElevatedButton(
+                        onPressed: controller.submit,
+                        style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+                        child: Text(controller.isLogin ? "Giriş Yap" : "Kayıt Ol"),
+                      ),
+                      
+                  TextButton(
+                    onPressed: controller.toggleAuthMode,
+                    child: Text(controller.isLogin ? "Hesabın yok mu? Kayıt Ol" : "Zaten hesabın var mı? Giriş Yap"),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
