@@ -178,7 +178,6 @@ class HomeScreen extends StatelessWidget {
               }
 
               // Listeyi Göster
-              // Listeyi Göster
               return ListView.builder(
                 itemCount: dailyTodos.length,
                 itemBuilder: (context, index) {
@@ -221,13 +220,11 @@ class HomeScreen extends StatelessWidget {
                             const SizedBox(height: 6),
                           ],
                           
-                          // 2. ÇÖZÜM: Row Yerine WRAP Kullanıyoruz (Ekrana sığmazsa alt satıra atar)
                           Wrap(
-                            spacing: 12.0, // Elemanlar arası yatay boşluk (SizedBox kullanmamıza gerek kalmadı)
-                            runSpacing: 4.0, // Alt satıra geçerse bırakılacak dikey boşluk
+                            spacing: 12.0, 
+                            runSpacing: 4.0, 
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
-                              // SAAT BÖLÜMÜ (Birlikte kalsınlar diye küçük bir Row içinde)
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -263,7 +260,7 @@ class HomeScreen extends StatelessWidget {
                               
                               // ÖNCELİK BÖLÜMÜ
                               Text(
-                                todo.priority == 1 ? "🔴 Yüksek" : todo.priority == 2 ? "🟠 Orta" : "🟢 Düşük",
+                                todo.priority == 1 ? "🟠 Yüksek" : todo.priority == 2 ? "🔵 Orta" : "🟢 Düşük",
                                 style: const TextStyle(fontSize: 12),
                               ),
                             ],

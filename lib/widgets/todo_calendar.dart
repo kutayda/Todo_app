@@ -80,8 +80,8 @@ class TodoCalendar extends StatelessWidget {
                 dotColor = Colors.red;
               } else {
                 switch (todo.priority) {
-                  case 1: dotColor = Colors.red; break;
-                  case 2: dotColor = Colors.orange; break;
+                  case 1: dotColor = Colors.deepOrange; break;
+                  case 2: dotColor = Colors.blue; break;
                   default: dotColor = Colors.green;
                 }
               }

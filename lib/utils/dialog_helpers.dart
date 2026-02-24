@@ -77,7 +77,12 @@ class DialogHelpers {
 
                   DropdownButton<int>(
                     value: priority, isExpanded: true,
-                    items: [DropdownMenuItem(value: 1, child: Text("🔴 ${loc.highPriority}")), DropdownMenuItem(value: 2, child: Text("🟠 ${loc.mediumPriority}")), DropdownMenuItem(value: 3, child: Text("🟢 ${loc.lowPriority}"))],
+                    // SİHİR BURADA: Emojiler yeni renk paletine (Turuncu ve Mavi) güncellendi.
+                    items: [
+                      DropdownMenuItem(value: 1, child: Text("🟠 ${loc.highPriority}")), 
+                      DropdownMenuItem(value: 2, child: Text("🔵 ${loc.mediumPriority}")), 
+                      DropdownMenuItem(value: 3, child: Text("🟢 ${loc.lowPriority}"))
+                    ],
                     onChanged: (val) => setDialogState(() => priority = val!),
                   ),
                 ],
@@ -178,7 +183,12 @@ class DialogHelpers {
                   const SizedBox(height: 15),
                   DropdownButton<int>(
                     value: priority, isExpanded: true,
-                    items: [DropdownMenuItem(value: 1, child: Text("🔴 ${loc.highPriority}")), DropdownMenuItem(value: 2, child: Text("🟠 ${loc.mediumPriority}")), DropdownMenuItem(value: 3, child: Text("🟢 ${loc.lowPriority}"))],
+                    // SİHİR BURADA: Emojiler yeni renk paletine (Turuncu ve Mavi) güncellendi.
+                    items: [
+                      DropdownMenuItem(value: 1, child: Text("🟠 ${loc.highPriority}")), 
+                      DropdownMenuItem(value: 2, child: Text("🔵 ${loc.mediumPriority}")), 
+                      DropdownMenuItem(value: 3, child: Text("🟢 ${loc.lowPriority}"))
+                    ],
                     onChanged: (val) => setDialogState(() => priority = val!),
                   ),
                 ],
