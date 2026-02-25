@@ -179,10 +179,17 @@ class HomeScreen extends StatelessWidget {
                   return Card(
                     margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: ListTile(
-                      leading: Checkbox(
-                        value: todo.isCompleted,
-                        onChanged: isOverdue ? null : (_) => todoController.toggleTodoStatus(todo),
-                      ),
+                      leading: isOverdue
+                          ? const Padding(
+                              // Checkbox'ın kapladığı standart alanla hizalı durması için padding ekliyoruz
+                              padding: EdgeInsets.only(left: 8.0, right: 8.0),
+                              child: Icon(Icons.close, color: Colors.red, size: 28),
+                            )
+                          : Checkbox(
+                              value: todo.isCompleted,
+                              // Artık isOverdue kontrolüne gerek yok çünkü geciktiyse Checkbox hiç çizilmeyecek
+                              onChanged: (_) => todoController.toggleTodoStatus(todo),
+                            ),
                       
                       // Başlık
                       title: Text(
