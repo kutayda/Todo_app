@@ -1,3 +1,5 @@
+// ignore_for_file: curly_braces_in_flow_control_structures, use_build_context_synchronously, duplicate_ignore
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart'; // Provider yerine GetX geldi
 import 'package:intl/intl.dart';
