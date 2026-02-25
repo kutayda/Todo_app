@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:todo_app/l10n/app_localizations.dart';
 import 'package:todo_app/models/todo_model.dart';
 import 'package:todo_app/providers/local_provider.dart';
+import 'package:todo_app/screens/statistics_screen.dart';
 import 'package:todo_app/utils/notification_helper.dart';
 import '../providers/theme_provider.dart';
 import '../widgets/todo_calendar.dart';
@@ -87,6 +88,13 @@ class HomeScreen extends StatelessWidget {
               }
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.bar_chart, color: Colors.green),
+            tooltip: 'İstatistikler',
+            onPressed: () {
+              Get.to(() => StatisticsScreen());
+            },
+          )
         ],
       ),
       
