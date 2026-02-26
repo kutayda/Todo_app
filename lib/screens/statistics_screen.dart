@@ -24,12 +24,13 @@ class StatisticsScreen extends StatelessWidget {
         final completedList = controller.todos
             .where((t) => t.isCompleted).toList();
             
-        final now = DateTime.now();
+        // ARTIK SADECE KENDİ YAZDIĞIMIZ 'isOverdue' METODUNU ÇAĞIRIYORUZ!
         final overdueList = controller.todos
-            .where((t) => t.deadline.isBefore(now) && !t.isCompleted).toList();
+            .where((t) => t.isOverdue).toList();
             
+        // BEKLEYENLER: Tamamlanmamış VE Gecikmemiş olanlar
         final pendingList = controller.todos
-            .where((t) => !t.isCompleted && !t.deadline.isBefore(now)).toList();
+            .where((t) => !t.isCompleted && !t.isOverdue).toList();
 
         final progress = totalList.isEmpty ? 0.0 : completedList.length / totalList.length;
 

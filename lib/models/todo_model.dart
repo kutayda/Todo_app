@@ -109,6 +109,10 @@ class Todo {
 
   bool get isOverdue {
     if (isCompleted) return false;
-    return DateTime.now().isAfter(deadline);
+    final now = DateTime.now();
+
+    final currentMinute = DateTime(now.year, now.month, now.day, now.hour, now.minute);
+    final taskMinute = DateTime(deadline.year, deadline.month, deadline.day, deadline.hour, deadline.minute);
+    return taskMinute.isBefore(currentMinute);
   }
 }

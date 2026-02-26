@@ -147,7 +147,7 @@ class TodoController extends GetxController {
     
     // Geçmişte kalan VE henüz tamamlanmamış görevleri filtrele
     final overdueTasks = todos.where((todo) => 
-      todo.deadline.isBefore(now) && !todo.isCompleted
+      todo.isOverdue && !todo.isCompleted
     ).toList();
 
     // Eğer gecikmiş görev varsa ekranda bir Alert (Uyarı Penceresi) göster
