@@ -17,11 +17,9 @@ class NotificationHelper {
     tz.initializeTimeZones();
     
     // UTC HİLESİ İÇİN TEMEL AYAR
-    // Yerel konum ne olursa olsun UTC (Evrensel) saati baz alacağız.
     tz.setLocalLocation(tz.UTC);
 
     const AndroidInitializationSettings androidSettings =
-        // Hata riskini sıfıra indirmek için Android'in kendi ikonunu kullanıyoruz
         AndroidInitializationSettings('@android:drawable/ic_menu_add');
 
     const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
@@ -35,8 +33,10 @@ class NotificationHelper {
       iOS: iosSettings,
     );
 
+    // 1. DÜZELTME: initializationSettings artık isimli parametre oldu
+    // DOĞRU VE GÜNCEL KISIM
     await _notificationsPlugin.initialize(
-      initSettings,
+      settings: initSettings, // SİHİRLİ KELİME: Sadece 'settings'
       onDidReceiveNotificationResponse: (details) {
         print("Bildirime tıklandı: ${details.payload}");
       },
@@ -58,7 +58,7 @@ class NotificationHelper {
   NotificationDetails _notificationDetails() {
     return const NotificationDetails(
       android: AndroidNotificationDetails(
-        'todo_channel_utc_final', // Kanal ID'si (Yeni)
+        'todo_channel_utc_final',
         'Görev Hatırlatıcıları',
         channelDescription: 'Zamanı gelen görevler için bildirim',
         importance: Importance.max,
@@ -72,11 +72,13 @@ class NotificationHelper {
 
   Future<void> showInstantNotification(
       {required int id, required String title, required String body}) async {
+    
+    // 2. DÜZELTME: id, title ve body artık isimli parametre oldu
     await _notificationsPlugin.show(
-      id,
-      title,
-      body,
-      _notificationDetails(),
+      id: id,
+      title: title,
+      body: body,
+      notificationDetails: _notificationDetails(),
     );
   }
 
@@ -94,19 +96,17 @@ class NotificationHelper {
         return;
       }
 
-      // Senin seçtiğin saati UTC'ye çevirip sisteme veriyoruz.
-      // Bu sayede Emülatörün "Timezone" ayarı ne olursa olsun saat şaşmaz.
       final scheduledDateUTC = tz.TZDateTime.from(scheduledTime.toUtc(), tz.UTC);
 
+      // 3. DÜZELTME: id, title, body ve scheduledDate isimli oldu. 
+      // 4. DÜZELTME: 'uiLocalNotificationDateInterpretation' satırı tamamen silindi!
       await _notificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        scheduledDateUTC,
-        _notificationDetails(),
+        id: id,
+        title: title,
+        body: body,
+        scheduledDate: scheduledDateUTC,
+        notificationDetails: _notificationDetails(),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
       );
       print("✅ Bildirim Kuruldu (UTC): $scheduledDateUTC");
     } catch (e) {
@@ -115,6 +115,7 @@ class NotificationHelper {
   }
 
   Future<void> cancelNotification(int id) async {
-    await _notificationsPlugin.cancel(id);
+    // 5. DÜZELTME: cancel metodundaki id bile isimli oldu
+    await _notificationsPlugin.cancel(id: id);
   }
 }

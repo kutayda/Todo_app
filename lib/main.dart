@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:todo_app/controllers/notification_controller.dart';
 import 'firebase_options.dart';
 import 'models/todo_model.dart';
 import 'providers/theme_provider.dart';
@@ -13,6 +15,10 @@ import 'screens/home_screen.dart';
 import 'screens/auth_screen.dart';
 import 'utils/notification_helper.dart';
 import 'l10n/app_localizations.dart';
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Arka planda bildirim geldi: ${message.messageId}");
+}
 
 void main() async {
   // 1. Flutter engine ve widget'ları hazırla
@@ -23,6 +29,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   // 3. Hive (Yerel Veritabanı) kurulumu
   await Hive.initFlutter();
   if (!Hive.isAdapterRegistered(0)) Hive.registerAdapter(TodoAdapter());
@@ -31,15 +39,15 @@ void main() async {
 
   // 4. Bildirim sistemini başlat
   await NotificationHelper().init();
+  Get.put(NotificationController());
 
   runApp(
     MultiProvider(
       providers: [
-        // Sadece Tema ve Dil provider'ları kaldı, TodoProvider'ı sildik.
+        // Tema ve Dil provider.
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
       ],
-      // HATA BURADAYDI: child olarak GetMaterialApp değil, MyApp'i çağırmalıyız!
       child: const MyApp(), 
     ),
   );
@@ -50,7 +58,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Consumer3 yerine Consumer2 kullanıyoruz çünkü TodoProvider artık yok
     return Consumer2<ThemeProvider, LocaleProvider>(
       builder: (context, themeProvider, localeProvider, child) {
         

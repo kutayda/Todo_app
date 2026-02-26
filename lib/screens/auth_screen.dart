@@ -11,9 +11,9 @@ class AuthScreen extends StatelessWidget {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          // GetBuilder ile Controller'ı sayfaya bağlıyoruz!!!
+          // GetBuilder
           child: GetBuilder<AuthController>(
-            init: AuthController(), // İlk açılışta Controller'ı başlatır
+            init: AuthController(), // Controller'ı başlat
             builder: (controller) {
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -37,7 +37,7 @@ class AuthScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 25),
                   
-                  // Yükleniyor durumuna göre buton veya animasyon gösterimi
+                  // Buton veya animasyon 
                   controller.isLoading 
                     ? const CircularProgressIndicator()
                     : ElevatedButton(

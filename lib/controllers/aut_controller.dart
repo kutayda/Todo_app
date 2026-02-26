@@ -42,7 +42,6 @@ class AuthController extends GetxController {
     }
   }
 
-  // Hafıza Yönetimi: Sayfa kapandığında TextField'ları RAM'den temizle
   @override
   void onClose() {
     emailController.dispose();

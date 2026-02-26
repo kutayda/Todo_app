@@ -1,9 +1,12 @@
+// ignore_for_file: unused_local_variable
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/todo_model.dart';
 import '../services/database_service.dart';
+import '../controllers/local_notif_controller.dart'; 
 
 // 1. Kural: ChangeNotifier yerine GetxController
 class TodoController extends GetxController {
@@ -22,6 +25,8 @@ class TodoController extends GetxController {
     super.onInit();
     fetchTodosFromApi();
     _subscribeToAuthChanges(); 
+    
+    Get.put(LocalNotifController()); 
   }
 
   void _subscribeToAuthChanges() {
@@ -46,12 +51,29 @@ class TodoController extends GetxController {
     _todosSubscription?.cancel();
   }
 
-  
   Future<void> addTodo(Todo todo) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
+    
     await DatabaseService(uid: user.uid).addTodo(todo);
+    final notifController = Get.find<LocalNotifController>();
+    await notifController.showInstantTest();
+    
+    if (todo.deadline.isAfter(DateTime.now())) {
+      try {
+        final notifController = Get.find<LocalNotifController>();
+        await notifController.scheduleTodoAlarm(
+          todo.id.hashCode, 
+          "⏳ Görev Zamanı Geldi!",
+          "Hatırlatıcı: ${todo.title}",
+          todo.deadline,
+        );
+      } catch (e) {
+        print("Alarm kurulamadı: $e");
+      }
+    }
   }
+  
 
   Future<void> updateTodo(Todo todo) async {
     final user = FirebaseAuth.instance.currentUser;
@@ -62,7 +84,15 @@ class TodoController extends GetxController {
   Future<void> deleteTodo(String id) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
+    
     await DatabaseService(uid: user.uid).deleteTodo(id);
+    
+    try {
+      final notifController = Get.find<LocalNotifController>();
+      await notifController.cancelAlarm(id.hashCode);
+    } catch (e) {
+      print("Alarm iptal edilemedi: $e");
+    }
   }
 
   Future<void> fetchTodosFromApi() async{
@@ -99,7 +129,6 @@ class TodoController extends GetxController {
 
 
   void setDate(DateTime date) {
-    // Sadece değeri değiştiriyor
     selectedDate.value = date; 
   }
 
@@ -113,44 +142,41 @@ class TodoController extends GetxController {
     return todos.where((todo) => isSameDay(todo.deadline, day)).toList();
   }
 
-  // Arama metnini güncelleme 
   void uptadeSearchQuery(String query){
     searchQuery.value = query;
   }
+  
   List<Todo> get filteredDailyTodos{
     if (searchQuery.value.isEmpty) {
       return getEventsForDay(selectedDate.value);
     }
     
-    // 2. Durum: Eğer arama kutusu DOLUYSA, takvimi yoksay ve TÜM GÖREVLER (todos) içinde ara
     return todos.where((todo) =>
         todo.title.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
         todo.description.toLowerCase().contains(searchQuery.value.toLowerCase())
     ).toList();
   }
+  
   @override
   void onClose() {
     _todosSubscription?.cancel();
     _authSubscription?.cancel();
     super.onClose();
   }
+  
   @override
   void onReady() {
     super.onReady();
-    // Ekran çizimi biter bitmez gecikmiş görevleri kontrol et
     _checkOverdueTasksOnStartup();
   }
 
-  // Gecikmiş Görevleri Tespit Edip Uyarı Veren Fonksiyon
   void _checkOverdueTasksOnStartup() {
     final now = DateTime.now();
     
-    // Geçmişte kalan VE henüz tamamlanmamış görevleri filtrele
     final overdueTasks = todos.where((todo) => 
       todo.isOverdue && !todo.isCompleted
     ).toList();
 
-    // Eğer gecikmiş görev varsa ekranda bir Alert (Uyarı Penceresi) göster
     if (overdueTasks.isNotEmpty) {
       Get.defaultDialog(
         title: "⏰ Gecikmiş Görevler!",
@@ -161,7 +187,7 @@ class TodoController extends GetxController {
         buttonColor: Colors.redAccent,
         radius: 12,
         onConfirm: () {
-          Get.back(); // Butona basılınca pencereyi kapat
+          Get.back(); 
         },
       );
     }
